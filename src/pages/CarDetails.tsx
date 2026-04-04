@@ -1,17 +1,32 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Star, Fuel, Users, Gauge, Zap, ArrowLeft, MessageCircle, CalendarDays } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cars } from "@/data/cars";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+
+const stagger = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
+};
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
 
 const CarDetails = () => {
   const { id } = useParams<{ id: string }>();
   const car = cars.find((c) => c.id === id);
+  const { addViewed } = useRecentlyViewed();
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  useEffect(() => {
+    if (id) addViewed(id);
+  }, [id, addViewed]);
 
   const totalDays = useMemo(() => {
     if (!startDate || !endDate) return 0;
@@ -47,35 +62,45 @@ const CarDetails = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4">
-          <Link to="/cars" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Fleet
-          </Link>
+          <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+            <Link to="/cars" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8">
+              <ArrowLeft className="w-4 h-4" /> Back to Fleet
+            </Link>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Image */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
+              initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="rounded-2xl overflow-hidden border border-border"
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="rounded-2xl overflow-hidden border border-border group"
             >
-              <img src={car.image} alt={`${car.brand} ${car.name}`} className="w-full h-full object-cover" width={800} height={512} />
+              <img
+                src={car.image}
+                alt={`${car.brand} ${car.name}`}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                width={800}
+                height={512}
+              />
             </motion.div>
 
             {/* Details */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <p className="text-primary uppercase tracking-[0.2em] text-sm font-semibold">{car.brand}</p>
-              <h1 className="font-display text-4xl md:text-5xl font-bold mt-1 mb-4">{car.name}</h1>
+            <motion.div variants={stagger} initial="hidden" animate="show">
+              <motion.p variants={fadeUp} className="text-primary uppercase tracking-[0.2em] text-sm font-semibold">{car.brand}</motion.p>
+              <motion.h1 variants={fadeUp} className="font-display text-4xl md:text-5xl font-bold mt-1 mb-4">{car.name}</motion.h1>
 
-              <div className="flex items-center gap-4 mb-6">
+              <motion.div variants={fadeUp} className="flex items-center gap-4 mb-6">
                 <div className="flex items-center gap-1 text-primary">
                   <Star className="w-5 h-5 fill-current" />
                   <span className="font-semibold">{car.rating}</span>
@@ -83,26 +108,32 @@ const CarDetails = () => {
                 <span className="text-muted-foreground text-sm">({car.reviews} reviews)</span>
                 <span className="text-muted-foreground">•</span>
                 <span className="text-muted-foreground text-sm">{car.type}</span>
-              </div>
+              </motion.div>
 
-              <div className="flex items-end gap-2 mb-8">
+              <motion.div variants={fadeUp} className="flex items-end gap-2 mb-8">
                 <span className="font-display text-4xl font-bold text-primary">${car.pricePerDay}</span>
                 <span className="text-muted-foreground mb-1">/day</span>
-              </div>
+              </motion.div>
 
               {/* Specs */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {specs.map((spec) => (
-                  <div key={spec.label} className="bg-card rounded-xl p-4 border border-border">
+              <motion.div variants={fadeUp} className="grid grid-cols-2 gap-4 mb-8">
+                {specs.map((spec, i) => (
+                  <motion.div
+                    key={spec.label}
+                    className="bg-card rounded-xl p-4 border border-border hover:border-primary/30 transition-colors"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.1 }}
+                  >
                     <spec.icon className="w-5 h-5 text-primary mb-2" />
                     <p className="text-muted-foreground text-xs">{spec.label}</p>
                     <p className="font-semibold">{spec.value}</p>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
               {/* Booking */}
-              <div className="bg-card rounded-2xl p-6 border border-border mb-6">
+              <motion.div variants={fadeUp} className="bg-card rounded-2xl p-6 border border-border mb-6">
                 <h3 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
                   <CalendarDays className="w-5 h-5 text-primary" /> Book This Car
                 </h3>
@@ -128,7 +159,11 @@ const CarDetails = () => {
                 </div>
 
                 {totalDays > 0 && (
-                  <div className="bg-muted rounded-xl p-4 mb-4">
+                  <motion.div
+                    className="bg-muted rounded-xl p-4 mb-4"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                  >
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-muted-foreground">${car.pricePerDay} × {totalDays} days</span>
                       <span className="font-semibold">${totalPrice}</span>
@@ -137,29 +172,35 @@ const CarDetails = () => {
                       <span className="font-semibold">Total</span>
                       <span className="text-primary font-display text-xl font-bold">${totalPrice}</span>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button className="gold-gradient text-primary-foreground py-3 rounded-xl font-semibold transition-all gold-glow-hover">
+                  <motion.button
+                    className="gold-gradient text-primary-foreground py-3 rounded-xl font-semibold gold-glow-hover"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
                     Book Now
-                  </button>
-                  <a
+                  </motion.button>
+                  <motion.a
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-[#25D366] text-primary-foreground py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                    className="bg-[#25D366] text-primary-foreground py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
                   >
                     <MessageCircle className="w-5 h-5" /> Book via WhatsApp
-                  </a>
+                  </motion.a>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>
       </div>
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 

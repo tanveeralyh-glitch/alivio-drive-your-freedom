@@ -85,4 +85,14 @@
   .gold-glow-hover:hover {
     box-shadow: 0 0 30px hsl(43 72% 52% / 0.4), 0 0 60px hsl(43 72% 52% / 0.15);
   }
+  .shimmer-skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted-foreground) / 0.08) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
 }

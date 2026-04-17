@@ -22,6 +22,7 @@ const Index = () => {
     >
       <Navbar />
       <HeroSection />
+      <FeatureVideoSection />
       <FeaturedCars />
       <TrendingCars />
       <PromotionsSection />

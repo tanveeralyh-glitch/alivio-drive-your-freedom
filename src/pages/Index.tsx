@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import FeatureVideoSection from "@/components/FeatureVideoSection";
 import FeaturedCars from "@/components/FeaturedCars";
 import TrendingCars from "@/components/TrendingCars";
 import PromotionsSection from "@/components/PromotionsSection";
@@ -21,6 +22,7 @@ const Index = () => {
     >
       <Navbar />
       <HeroSection />
+      <FeatureVideoSection />
       <FeaturedCars />
       <TrendingCars />
       <PromotionsSection />

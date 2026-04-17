@@ -1,13 +1,26 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, Fuel, Users, Gauge, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Car } from "@/data/cars";
+import carPreviewVideo from "@/assets/car-preview.mp4.asset.json";
 
 const CarCard = ({ car, index = 0 }: { car: Car; index?: number }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (isHovered) {
+      v.currentTime = 0;
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }, [isHovered]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -49,6 +62,18 @@ const CarCard = ({ car, index = 0 }: { car: Car; index?: number }) => {
             width={800}
             height={512}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          {/* Hover video preview */}
+          <video
+            ref={videoRef}
+            src={carPreviewVideo.url}
+            muted
+            loop
+            playsInline
+            preload="none"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
           />
           {car.featured && (
             <span className="absolute top-4 left-4 gold-gradient text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
